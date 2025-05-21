@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Luxe Parfums{% endblock %}</title>
+    {% load static tailwind_tags %} {% tailwind_css %}
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+  </head>
+  <body class="font-sans bg-gray-50">
+    <header class="bg-white shadow-sm">
+      <div
+        class="container mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <a
+          href="{% url 'core:accueil' %}"
+          class="text-2xl font-bold text-indigo-600"
+          >Berto Rico Milano Parfums</a
+        >
+        <nav class="hidden md:flex space-x-8">
+          <a
+            href="{% url 'core:accueil' %}"
+            class="text-gray-700 hover:text-indigo-600"
+            >Accueil</a
+          >
+          <a
+            href="{% url 'core:liste_parfums' %}"
+            class="text-gray-700 hover:text-indigo-600"
+            >Nos parfums</a
+          >
+        </nav>
+        <div class="flex items-center space-x-4">
+          <a href="#" class="text-gray-700 hover:text-indigo-600">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+              />
+            </svg>
+          </a>
+          <!-- pour la recherche -->
+        <div class="hidden md:block flex-1 mx-8">
+          <form action="{% url 'core:recherche' %}" method="get">
+            <div class="relative">
+              <input
+                type="text"
+                name="q"
+                placeholder="Rechercher un parfum..."
+                class="w-full py-2 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button
+                type="submit"
+                class="absolute right-3 top-2.5 text-gray-400 hover:text-indigo-600"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      {% block content %} {% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-xl font-bold mb-4">Luxe Parfums</h3>
+            <p>Votre destination pour des parfums de luxe authentiques.</p>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Liens rapides</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="{% url 'core:accueil' %}" class="hover:text-indigo-300"
+                  >Accueil</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'core:liste_parfums' %}"
+                  class="hover:text-indigo-300"
+                  >Nos parfums</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold mb-4">Contact</h3>
+            <p>contact@luxeparfums.com</p>
+            <p>+33 1 23 45 67 89</p>
+          </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+          <p>&copy; 2023 Luxe Parfums. Tous droits réservés.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

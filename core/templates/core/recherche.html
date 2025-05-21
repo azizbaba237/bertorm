@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Recherche - Luxe Parfums{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">Résultats pour "{{ query }}"</h1>
+    
+    {% if parfums %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for parfum in parfums %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+            <a href="{% url 'core:detail_parfum' parfum.id %}">
+                <img src="{{ parfum.image.url }}" alt="{{ parfum.nom }}" class="w-full h-64 object-cover">
+                <div class="p-4">
+                    <h3 class="font-semibold text-lg mb-1">{{ parfum.nom }}</h3>
+                    <p class="text-gray-600 mb-2">{{ parfum.marque }}</p>
+                    <p class="text-indigo-600 font-bold">{{ parfum.prix }} €</p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white p-8 rounded-lg shadow-sm text-center">
+        <p class="text-gray-600">Aucun résultat trouvé pour "{{ query }}".</p>
+        <a href="{% url 'core:liste_parfums' %}" class="text-indigo-600 hover:underline">Voir tous nos parfums</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
