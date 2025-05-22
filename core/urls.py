@@ -10,5 +10,7 @@ urlpatterns = [
     path('panier/', views.voir_panier, name='voir_panier'),
     path('panier/ajouter/<int:pk>/', views.ajouter_au_panier, name='ajouter_au_panier'),
     path('panier/supprimer/<int:pk>/', views.supprimer_du_panier, name='supprimer_du_panier'),
+    path('panier/modifier/<int:pk>/', views.modifier_quantite, name='modifier_quantite'),
     path('recherche/', views.rechercher_parfums, name='recherche'),
+    
 ]

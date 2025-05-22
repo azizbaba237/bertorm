@@ -1,21 +1,29 @@
 {% extends 'base.html' %}
 
-{% block title %}Inscription - Luxe Parfums{% endblock %}
-
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-    <h1 class="text-2xl font-bold mb-6 text-center">Créer un compte</h1>
+<div class="max-w-md mx-auto p-6">
+    <h2 class="text-2xl font-bold mb-6">Inscription</h2>
     
     <form method="post" class="space-y-4">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-300">
+        
+        {% for field in form %}
+        <div>
+            <label class="block text-gray-700">{{ field.label_tag }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="text-red-500 text-sm">{{ field.errors }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
             S'inscrire
         </button>
     </form>
     
-    <p class="mt-4 text-center text-gray-600">
-        Déjà un compte ? <a href="{% url 'login' %}" class="text-indigo-600 hover:underline">Se connecter</a>
+    <p class="mt-4 text-center">
+        Déjà un compte ? <a href="{% url 'login' %}" class="text-indigo-600">Se connecter</a>
     </p>
 </div>
 {% endblock %}

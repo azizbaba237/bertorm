@@ -1,36 +1,69 @@
 {% extends 'base.html' %}
 
-{% block title %}Inscription - Luxe Parfums{% endblock %}
+{% block title %}Nos parfums - Luxe Parfums{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
-    <h1 class="text-2xl font-bold mb-6 text-center">Créer un compte</h1>
+<div class="flex flex-col md:flex-row gap-8">
+    <!-- Filtres -->
+    <div class="md:w-1/4">
+        <div class="bg-white p-6 rounded-lg shadow-sm sticky top-4">
+            <h3 class="font-bold text-lg mb-4">Filtrer par</h3>
+            
+            <div class="mb-6">
+                <h4 class="font-medium mb-2">Genre</h4>
+                <div class="space-y-2">
+                    <a href="?genre=F" class="block hover:text-indigo-600 {% if request.GET.genre == 'F' %}text-indigo-600 font-medium{% endif %}">Féminin</a>
+                    <a href="?genre=M" class="block hover:text-indigo-600 {% if request.GET.genre == 'M' %}text-indigo-600 font-medium{% endif %}">Masculin</a>
+                    <a href="?genre=U" class="block hover:text-indigo-600 {% if request.GET.genre == 'U' %}text-indigo-600 font-medium{% endif %}">Unisexe</a>
+                    <a href="{% url 'core:liste_parfums' %}" class="block text-sm text-gray-500 mt-2 hover:text-indigo-600">Réinitialiser</a>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-medium mb-2">Marque</h4>
+                <div class="space-y-2">
+                    {% for marque in marques %}
+                    <a href="?marque={{ marque.id }}" class="block hover:text-indigo-600 {% if request.GET.marque == marque.id|stringformat:'s' %}text-indigo-600 font-medium{% endif %}">
+                        {{ marque.nom }}
+                    </a>
+                    {% endfor %}
+                    <a href="{% url 'core:liste_parfums' %}" class="block text-sm text-gray-500 mt-2 hover:text-indigo-600">Réinitialiser</a>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <form method="post" class="space-y-4">
-        {% csrf_token %}
+    <!-- Liste des parfums -->
+    <div class="md:w-3/4">
+        <h1 class="text-2xl font-bold mb-6">Nos parfums</h1>
         
-        {% for field in form %}
-        <div>
-            <label for="{{ field.id_for_label }}" class="block text-gray-700">
-                {{ field.label }}
-            </label>
-            {{ field }}
-            {% if field.help_text %}
-            <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
-            {% endif %}
-            {% for error in field.errors %}
-            <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+        {% if parfums %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for parfum in parfums %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                <a href="{% url 'core:detail_parfum' parfum.id %}">
+                    <img src="{{ parfum.image.url }}" alt="{{ parfum.nom }}" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="font-semibold text-lg mb-1">{{ parfum.nom }}</h3>
+                        <p class="text-gray-600 mb-2">{{ parfum.marque }}</p>
+                        <p class="text-indigo-600 font-bold">{{ parfum.prix }} €</p>
+                    </div>
+                    <!-- Bouton ajouter au panier -->
+                    <div class="p-4">
+                        <form action="{% url 'core:ajouter_au_panier' parfum.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-300">
+                                Ajouter au panier 
+                            </button>
+                        </form>
+                    </div>
+                </a>
+            </div>
             {% endfor %}
         </div>
-        {% endfor %}
-        
-        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-300">
-            S'inscrire
-        </button>
-    </form>
-    
-    <p class="mt-4 text-center text-gray-600">
-        Déjà un compte ? <a href="{% url 'login' %}" class="text-indigo-600 hover:underline">Se connecter</a>
-    </p>
+        {% else %}
+        <p class="text-gray-600">Aucun parfum ne correspond à vos critères de recherche.</p>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

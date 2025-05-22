@@ -83,7 +83,9 @@ USE_TZ = True
 
 # Fichiers statiques
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+SSTATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Type de champ de clé primaire par défaut
@@ -93,5 +95,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 NPM_BIN_PATH = "C:\\Program Files\\nodejs\\npm.cmd"  # Example Windows path, adjust as needed
 
 # Authentification
+LOGIN_URL = 'core:login'
 LOGIN_REDIRECT_URL = 'core:accueil'
 LOGOUT_REDIRECT_URL = 'core:accueil'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

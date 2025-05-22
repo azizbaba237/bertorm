@@ -5,7 +5,6 @@ from django.contrib import messages
 from .models import Panier, ArticlePanier
 from django.contrib.auth.decorators import login_required
 from .models import *
-from .forms import InscriptionForm
 
 def accueil(request):
     parfums = Parfum.objects.filter(disponible=True).order_by('-date_ajout')[:8]
@@ -32,7 +31,7 @@ def liste_parfums(request):
     }
     return render(request, 'core/liste_parfums.html', context)
 
-
+# Pour afficher les détails d'un parfum
 def detail_parfum(request, pk):
     parfum = get_object_or_404(Parfum, pk=pk)
     avis = parfum.avis.all().order_by('-date_creation')
@@ -42,8 +41,16 @@ def detail_parfum(request, pk):
     }
     return render(request, 'core/detail_parfum.html', context)
 
+# Pour la gestion du panier
+@login_required
+def voir_panier(request):
+    panier, created = Panier.objects.get_or_create(utilisateur=request.user)
+    context = {
+        'panier': panier,
+    }
+    return render(request, 'core/panier.html', context)
 
-# vue pour ajouter un parfum au panier
+@login_required
 def ajouter_au_panier(request, pk):
     parfum = get_object_or_404(Parfum, pk=pk)
     panier, created = Panier.objects.get_or_create(utilisateur=request.user)
@@ -59,22 +66,30 @@ def ajouter_au_panier(request, pk):
         article.save()
     
     messages.success(request, f"{parfum.nom} a été ajouté à votre panier.")
-    return redirect('core:detail_parfum', pk=pk)
+    return redirect(request.META.get('HTTP_REFERER', 'core:accueil'))
 
 @login_required
-def voir_panier(request):
-    panier = get_object_or_404(Panier, utilisateur=request.user)
-    context = {
-        'panier': panier,
-    }
-    return render(request, 'core/panier.html', context)
-
 def supprimer_du_panier(request, pk):
     article = get_object_or_404(ArticlePanier, pk=pk, panier__utilisateur=request.user)
     article.delete()
     messages.success(request, "L'article a été supprimé du panier.")
     return redirect('core:voir_panier')
 
+@login_required
+def modifier_quantite(request, pk):
+    if request.method == 'POST':
+        article = get_object_or_404(ArticlePanier, pk=pk, panier__utilisateur=request.user)
+        quantite = int(request.POST.get('quantite', 1))
+        
+        if quantite > 0:
+            article.quantite = quantite
+            article.save()
+            messages.success(request, "La quantité a été mise à jour.")
+        else:
+            article.delete()
+            messages.success(request, "L'article a été supprimé du panier.")
+    
+    return redirect('core:voir_panier')
 
 # Pour faire la recherche
 def rechercher_parfums(request):
@@ -94,17 +109,3 @@ def rechercher_parfums(request):
         'query': query,
     }
     return render(request, 'core/recherche.html', context)
-
-
-# Vue pour le profil utilisateur
-@login_required
-def inscription(request):
-    if request.method == 'POST':
-        form = InscriptionForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('core:accueil')
-    else:
-        form = InscriptionForm()
-    return render(request, 'core/inscription.html', {'form': form})
