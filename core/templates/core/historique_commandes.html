@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes commandes - Luxe Parfums{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-8">Historique de mes commandes</h1>
+    
+    {% if commandes %}
+    <div class="space-y-6">
+        {% for commande in commandes %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center">
+                <div>
+                    <h2 class="font-bold">Commande #{{ commande.numero_commande }}</h2>
+                    <p class="text-gray-600 text-sm">Passée le {{ commande.date_commande|date:"d/m/Y" }}</p>
+                </div>
+                <div class="flex items-center">
+                    <span class="px-3 py-1 bg-{{ commande.statut_color }}-100 text-{{ commande.statut_color }}-800 rounded-full text-sm mr-4">
+                        {{ commande.get_statut_display }}
+                    </span>
+                    <span class="font-bold">{{ commande.total }} €</span>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    {% for article in commande.articles.all|slice:":3" %}
+                    <div class="flex items-center">
+                        <img src="{{ article.parfum.image.url }}" alt="{{ article.parfum.nom }}" 
+                             class="w-12 h-12 object-cover rounded mr-3">
+                        <div>
+                            <p class="font-medium text-sm">{{ article.parfum.nom }}</p>
+                            <p class="text-gray-600 text-xs">{{ article.quantite }} x {{ article.prix }} €</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if commande.articles.count > 3 %}
+                    <div class="flex items-center text-gray-500">
+                        + {{ commande.articles.count|add:"-3" }} autre(s) article(s)
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="flex justify-end">
+                    <a href="{% url 'core:detail_commande' commande.numero_commande %}" 
+                       class="text-indigo-600 hover:text-indigo-800 font-medium">
+                        Voir les détails &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white p-8 rounded-lg shadow-sm text-center">
+        <p class="text-gray-600 mb-4">Vous n'avez passé aucune commande pour le moment.</p>
+        <a href="{% url 'core:liste_parfums' %}" class="text-indigo-600 hover:underline">
+            Découvrez nos parfums
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

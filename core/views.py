@@ -5,6 +5,10 @@ from django.contrib import messages
 from .models import Panier, ArticlePanier
 from django.contrib.auth.decorators import login_required
 from .models import *
+from .forms import AdresseLivraisonForm, PaiementForm, CouponForm
+from django.views.generic import ListView
+import random
+import string
 
 def accueil(request):
     parfums = Parfum.objects.filter(disponible=True).order_by('-date_ajout')[:8]
@@ -109,3 +113,116 @@ def rechercher_parfums(request):
         'query': query,
     }
     return render(request, 'core/recherche.html', context)
+
+
+# Pour gérer les commandes
+@login_required
+def passer_commande(request):
+    panier = get_object_or_404(Panier, utilisateur=request.user)
+    methodes_livraison = MethodeLivraison.objects.filter(actif=True)
+     
+    if not panier.items.exists():
+        messages.warning(request, "Votre panier est vide.")
+        return redirect('core:voir_panier')
+    
+    if request.method == 'POST':
+        adresse_form = AdresseLivraisonForm(request.POST, user=request.user)
+        paiement_form = PaiementForm(request.POST)
+        coupon_form = CouponForm(request.POST)
+        methode_livraison_id = request.POST.get('methode_livraison')
+        
+        
+        try:
+            methode_livraison = MethodeLivraison.objects.get(id=methode_livraison_id, actif=True)
+        except MethodeLivraison.DoesNotExist:
+            messages.error(request, "Méthode de livraison invalide.")
+            return redirect('core:passer_commande')
+        
+        if adresse_form.is_valid() and paiement_form.is_valid():
+            # Gestion de l'adresse
+            if adresse_form.cleaned_data['adresse_existante']:
+                adresse = AdresseLivraison.objects.get(
+                    id=adresse_form.cleaned_data['adresse_existante'],
+                    utilisateur=request.user
+                )
+            else:
+                adresse = AdresseLivraison.objects.create(
+                    utilisateur=request.user,
+                    nom_complet=adresse_form.cleaned_data['nom_complet'],
+                    adresse=adresse_form.cleaned_data['adresse'],
+                    ville=adresse_form.cleaned_data['ville'],
+                    code_postal=adresse_form.cleaned_data['code_postal'],
+                    pays=adresse_form.cleaned_data['pays'],
+                    telephone=adresse_form.cleaned_data['telephone'],
+                    par_defaut=adresse_form.cleaned_data['par_defaut']
+                )
+            
+            # Gestion du coupon
+            reduction = 0
+            coupon = None
+            if coupon_form.is_valid() and coupon_form.cleaned_data['code']:
+                try:
+                    coupon = Coupon.objects.get(code=coupon_form.cleaned_data['code'], actif=True)
+                    reduction = coupon.calculer_reduction(panier.total)
+                except Coupon.DoesNotExist:
+                    messages.error(request, "Code promo invalide.")
+                    return redirect('core:passer_commande')
+            
+            # Création de la commande
+            numero_commande = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+            commande = Commande.objects.create(
+                utilisateur=request.user,
+                numero_commande=numero_commande,
+                adresse_livraison=adresse,
+                total=panier.total - reduction + methode_livraison.prix,
+                reduction=reduction,
+                coupon=coupon,
+                methode_paiement=paiement_form.cleaned_data['methode_paiement'],
+                #frais_livraison=0,  # À adapter selon votre système de livraison
+                frais_livraison=methode_livraison.prix,
+                methode_livraison=methode_livraison,
+            )
+            
+            # Création des articles de commande
+            for article_panier in panier.items.all():
+                ArticleCommande.objects.create(
+                    commande=commande,
+                    parfum=article_panier.parfum,
+                    quantite=article_panier.quantite,
+                    prix=article_panier.parfum.prix
+                )
+            
+            # Vider le panier
+            panier.items.all().delete()
+            
+            messages.success(request, f"Votre commande #{numero_commande} a été passée avec succès!")
+            return redirect('core:detail_commande', numero_commande=numero_commande)
+    else:
+        adresse_form = AdresseLivraisonForm(user=request.user)
+        paiement_form = PaiementForm()
+        coupon_form = CouponForm()
+    
+    context = {
+        'panier': panier,
+        'adresse_form': adresse_form,
+        'paiement_form': paiement_form,
+        'coupon_form': coupon_form,
+        'methodes_livraison': methodes_livraison,
+    }
+    return render(request, 'core/passer_commande.html', context)
+
+@login_required
+def detail_commande(request, numero_commande):
+    commande = get_object_or_404(Commande, numero_commande=numero_commande, utilisateur=request.user)
+    context = {
+        'commande': commande,
+    }
+    return render(request, 'core/detail_commande.html', context)
+
+class HistoriqueCommandes(ListView):
+    model = Commande
+    template_name = 'core/historique_commandes.html'
+    context_object_name = 'commandes'
+    
+    def get_queryset(self):
+        return Commande.objects.filter(utilisateur=self.request.user).order_by('-date_commande')
