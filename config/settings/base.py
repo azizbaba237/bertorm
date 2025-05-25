@@ -23,6 +23,9 @@ INSTALLED_APPS = [
     # Applications locales
     'core',
     'theme',  # App Tailwind
+    
+    'crispy_forms',  # pour les formulaires stylisés
+    'crispy_tailwind',  # pour Tailwind
 ]
 
 # App Tailwind
@@ -94,11 +97,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Add this to your settings.py
 NPM_BIN_PATH = "C:\\Program Files\\nodejs\\npm.cmd"  # Example Windows path, adjust as needed
 
-# Authentification
+# URL de redirection après login/logout
+LOGIN_REDIRECT_URL = 'core:home'
+LOGOUT_REDIRECT_URL = 'core:home'
 LOGIN_URL = 'core:login'
-LOGIN_REDIRECT_URL = 'core:accueil'
-LOGOUT_REDIRECT_URL = 'core:accueil'
+
+# Configuration Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
+CRISPY_TEMPLATE_PACK = "tailwind"
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    
 ]

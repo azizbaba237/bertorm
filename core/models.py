@@ -124,6 +124,13 @@ class Commande(models.Model):
     reduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     frais_livraison = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     methode_paiement = models.CharField(max_length=50)
+    methode_livraison = models.ForeignKey(
+        'MethodeLivraison',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Méthode de livraison"
+    )
 
     def __str__(self):
         return f"Commande #{self.numero_commande}"
