@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Mon Compte{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-8">Mon Compte</h1>
+
+  <div class="grid grid-cols-4 md:grid-cols-4 gap-8">
+    <!-- Menu latéral -->
+    <div class="md:col-span-1 bg-white p-6 rounded-lg shadow">
+      <div class="flex items-center space-x-4 mb-6">
+        <img
+          class="h-12 w-12 rounded-full"
+          src="{% if user.avatar %}{{ user.avatar.url }}{% else %}/static/images/default_avatar.png{% endif %}"
+          alt="{{ user.username }}"
+        />
+
+        <div>
+          <h2 class="font-semibold">{{ user.username }}</h2>
+          <p class="text-sm text-gray-500">{{ user.email }}</p>
+        </div>
+      </div>
+
+      <nav class="space-y-2">
+        <a
+          href="{% url 'core:account_dashboard' %}"
+          class="block px-4 py-2 bg-indigo-100 text-indigo-700 rounded font-medium"
+        >
+          Tableau de bord
+        </a>
+        <a
+          href="{% url 'core:profil' %}"
+          class="block px-4 py-2 hover:bg-gray-100 rounded"
+        >
+          Mon profil
+        </a>
+        <a
+          href="{% url 'core:historique_commandes' %}"
+          class="block px-4 py-2 hover:bg-gray-100 rounded"
+        >
+          Mes commandes
+        </a>
+        <a
+          href="{% url 'core:logout' %}"
+          class="block px-4 py-2 hover:bg-gray-100 rounded text-red-600"
+        >
+          Déconnexion
+        </a>
+      </nav>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="md:col-span-3">
+      <div class="bg-white p-6 rounded-lg shadow mb-6">
+        <h2 class="text-xl font-semibold mb-4">Dernières commandes</h2>
+
+        {% if commandes %}
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  N° Commande
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Date
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Total
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Statut
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for commande in commandes %}
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <a
+                    href="{% url 'core:detail_commande' commande.numero_commande %}"
+                    class="text-indigo-600 hover:text-indigo-900"
+                  >
+                    {{ commande.numero_commande }}
+                  </a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ commande.date_commande|date:"d/m/Y" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  {{ commande.total }} €
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span
+                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if commande.statut == 'livree' %}bg-green-100 text-green-800 {% elif commande.statut == 'annulee' %}bg-red-100 text-red-800 {% else %}bg-yellow-100 text-yellow-800{% endif %}"
+                  >
+                    {{ commande.get_statut_display }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500">Vous n'avez pas encore passé de commande.</p>
+        {% endif %}
+
+        <div class="mt-4">
+          <a
+            href="{% url 'core:historique_commandes' %}"
+            class="text-indigo-600 hover:text-indigo-800 font-medium"
+          >
+            Voir toutes mes commandes →
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-semibold mb-4">Activité récente</h2>
+
+        {% if connexions %}
+        <ul class="divide-y divide-gray-200">
+          {% for connexion in connexions %}
+          <li class="py-4">
+            <div class="flex items-center space-x-4">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-gray-800 truncate">
+                  Connexion depuis {{ connexion.ip_address }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ connexion.timestamp|timesince }} ago
+                </p>
+              </div>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-gray-500">Aucune activité récente.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

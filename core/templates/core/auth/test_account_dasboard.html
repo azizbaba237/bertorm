@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login</title>
+</head>
+<body>
+    <h1>PAGE DE TEST - INSCRIPTION</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label>Nom d'utilisateur:</label>
+            <input type="text" name="username" required>
+        </div>
+        <div>
+            <label>Mot de passe:</label>
+            <input type="password" name="password" required>
+        </div>
+        <button type="submit">Se connecter</button>
+    </form>
+    <p>Si vous voyez ce texte, le template fonctionne !</p>
+</body>
+</html>

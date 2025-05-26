@@ -1,8 +1,22 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.utils import timezone
+
+# Modele pour les utilisateurs (déplacé en premier)
+class User(AbstractUser):
+    phone = models.CharField(max_length=20, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    email_verified = models.BooleanField(default=False)
+    newsletter_subscription = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name = 'Utilisateur'
+        verbose_name_plural = 'Utilisateurs'
+
+    def __str__(self):
+        return self.username
 
 class Marque(models.Model):
     nom = models.CharField(max_length=100)
@@ -46,10 +60,8 @@ class Avis(models.Model):
         return f"Avis de {self.nom_client} sur {self.parfum}"
 
 # Modele pour le panier
-User = get_user_model()
-
 class Panier(models.Model):
-    utilisateur = models.OneToOneField(User, on_delete=models.CASCADE, related_name='panier')
+    utilisateur = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='panier')
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
 
@@ -77,33 +89,50 @@ class ArticlePanier(models.Model):
     def sous_total(self):
         return self.quantite * self.parfum.prix
     
-    
 # Modele pour le profil utilisateur
 class ProfilUtilisateur(models.Model):
-    utilisateur = models.OneToOneField(User, on_delete=models.CASCADE)
+    utilisateur = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profil')
     telephone = models.CharField(max_length=20, blank=True)
     adresse = models.TextField(blank=True)
     ville = models.CharField(max_length=100, blank=True)
     code_postal = models.CharField(max_length=10, blank=True)
     pays = models.CharField(max_length=100, blank=True)
+    date_naissance = models.DateField(null=True, blank=True)
+    preferences_newsletter = models.JSONField(default=dict, blank=True)  # Pour stocker les préférences
 
     def __str__(self):
         return f"Profil de {self.utilisateur.username}"
     
+    def adresse_complete(self):
+        return f"{self.adresse}, {self.code_postal} {self.ville}, {self.pays}"
     
 # Modele pour les commandes
 class AdresseLivraison(models.Model):
-    utilisateur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    utilisateur = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='adresses_livraison')
     nom_complet = models.CharField(max_length=100)
     adresse = models.CharField(max_length=255)
+    societe = models.CharField(max_length=100, blank=True)  # Optionnel pour les livraisons en entreprise
     ville = models.CharField(max_length=100)
+    complement = models.CharField(max_length=255, blank=True)
     code_postal = models.CharField(max_length=20)
     pays = models.CharField(max_length=100)
     telephone = models.CharField(max_length=20)
     par_defaut = models.BooleanField(default=False)
+    notes = models.TextField(blank=True)  # Instructions spéciales pour la livraison
 
+    class Meta:
+        verbose_name_plural = "Adresses de livraison"
+        ordering = ['-par_defaut', 'ville']
+        
     def __str__(self):
         return f"{self.nom_complet}, {self.adresse}, {self.ville}"
+    
+
+    def save(self, *args, **kwargs):
+        # S'assurer qu'il n'y a qu'une seule adresse par défaut
+        if self.par_defaut:
+            AdresseLivraison.objects.filter(utilisateur=self.utilisateur, par_defaut=True).update(par_defaut=False)
+        super().save(*args, **kwargs)
 
 class Commande(models.Model):
     STATUT_CHOICES = (
@@ -148,7 +177,6 @@ class ArticleCommande(models.Model):
     def sous_total(self):
         return self.quantite * self.prix
     
-    
 # Modele pour les coupons
 class Coupon(models.Model):
     code = models.CharField(max_length=50, unique=True)
@@ -176,7 +204,6 @@ class Coupon(models.Model):
             return 0
         return min(total_panier * (self.reduction / 100), total_panier)
     
-
 # Modele pour les méthodes de livraison
 class MethodeLivraison(models.Model):
     nom = models.CharField(max_length=100)
@@ -205,3 +232,34 @@ class Paiement(models.Model):
 
     def __str__(self):
         return f"Paiement {self.id} - {self.methode}"
+    
+# Modèle pour la vérification d'email
+class EmailVerificationToken(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def is_valid(self):
+        return timezone.now() < self.expires_at
+
+# Modèle pour les tokens de réinitialisation
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def is_valid(self):
+        return timezone.now() < self.expires_at
+
+# Modèle pour l'historique des connexions
+class UserLoginHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField()
+    user_agent = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Historique des connexions"
+        ordering = ['-timestamp']

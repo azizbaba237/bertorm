@@ -3,6 +3,12 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from .models import AdresseLivraison, Coupon
 from .models import Marque, MethodeLivraison
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth import get_user_model
+from .models import ProfilUtilisateur
+from django.contrib.auth.models import User
+
+
 
 class AdresseLivraisonForm(forms.Form):
     adresse_existante = forms.ChoiceField(
@@ -142,3 +148,40 @@ class FiltreParfumsForm(forms.Form):
             raise ValidationError("Le prix minimum ne peut pas être supérieur au prix maximum")
         
         return cleaned_data
+  
+  
+User = get_user_model()  
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    accept_cgu = forms.BooleanField(required=True, label="J'accepte les conditions générales d'utilisation")
+    newsletter = forms.BooleanField(required=False, label="S'abonner à la newsletter")
+    
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2', 'accept_cgu', 'newsletter']
+
+
+class UserUpdateForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone', 'avatar']
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = ProfilUtilisateur
+        fields = ['date_naissance', 'telephone', 'adresse', 'ville', 'code_postal', 'pays']
+
+class AdresseLivraisonForm(forms.ModelForm):
+    class Meta:
+        model = AdresseLivraison
+        fields = ['nom_complet', 'societe', 'adresse', 'complement', 'ville', 'code_postal', 'pays', 'telephone', 'par_defaut', 'notes']
+        widgets = {
+            'par_defaut': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class EmailVerificationForm(forms.Form):
+    email = forms.EmailField()
+
+class PasswordResetForm(forms.Form):
+    email = forms.EmailField()

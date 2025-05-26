@@ -28,6 +28,12 @@ INSTALLED_APPS = [
     'crispy_tailwind',  # pour Tailwind
 ]
 
+# Ajoutez aussi ces lignes
+LOGIN_URL = 'core:login'
+LOGIN_REDIRECT_URL = 'core:accueil'
+LOGOUT_REDIRECT_URL = 'core:accueil'
+
+
 # App Tailwind
 TAILWIND_APP_NAME = 'theme'
 
@@ -40,6 +46,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware',
+    #'core.middleware.LoginRequiredMiddleware',  # Middleware personnalisé
+    'core.middleware.UserActivityMiddleware',   # Pour suivre l'activité
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -86,21 +94,19 @@ USE_TZ = True
 
 # Fichiers statiques
 STATIC_URL = 'static/'
-SSTATICFILES_DIRS = [
+STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+# URLs pour les médias
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Type de champ de clé primaire par défaut
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Add this to your settings.py
 NPM_BIN_PATH = "C:\\Program Files\\nodejs\\npm.cmd"  # Example Windows path, adjust as needed
-
-# URL de redirection après login/logout
-LOGIN_REDIRECT_URL = 'core:home'
-LOGOUT_REDIRECT_URL = 'core:home'
-LOGIN_URL = 'core:login'
 
 # Configuration Crispy Forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
@@ -110,3 +116,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     
 ]
+
+AUTH_USER_MODEL = 'core.User' 
+
+# Configuration de Django Debug Toolbar
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: not request.path.startswith('/__reload__/'),
+}

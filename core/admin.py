@@ -12,3 +12,7 @@ admin.site.register(ArticleCommande)
 admin.site.register(AdresseLivraison)
 admin.site.register(Coupon)
 admin.site.register(MethodeLivraison)
+admin.site.register(User)
+
+
+

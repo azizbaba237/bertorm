@@ -2,3 +2,23 @@
 body {
     font-family: 'Arial', sans-serif;
 }
+/* Style pour les formulaires
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="file"],
+textarea,
+select {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500;
+}
+
+/* Style pour les erreurs de formulaire */
+/* .errorlist {
+    @apply mt-1 text-sm text-red-600;
+} */
+
+/* Style pour les images de profil */
+/* .avatar {
+    @apply rounded-full object-cover;
+} */ */

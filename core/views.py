@@ -5,10 +5,22 @@ from django.contrib import messages
 from .models import Panier, ArticlePanier
 from django.contrib.auth.decorators import login_required
 from .models import *
-from .forms import AdresseLivraisonForm, PaiementForm, CouponForm
+from .forms import AdresseLivraisonForm, PaiementForm, CouponForm, UserRegisterForm, UserCreationForm
 from django.views.generic import ListView
 import random
 import string
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.contrib.auth import get_user_model
+from .forms import UserUpdateForm, ProfileUpdateForm
+from django.views.generic.edit import UpdateView
+from django.db import models
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import logout
 
 def accueil(request):
     parfums = Parfum.objects.filter(disponible=True).order_by('-date_ajout')[:8]
@@ -54,6 +66,7 @@ def voir_panier(request):
     }
     return render(request, 'core/panier.html', context)
 
+# Pour ajouter un parfum au panier
 @login_required
 def ajouter_au_panier(request, pk):
     parfum = get_object_or_404(Parfum, pk=pk)
@@ -72,6 +85,7 @@ def ajouter_au_panier(request, pk):
     messages.success(request, f"{parfum.nom} a été ajouté à votre panier.")
     return redirect(request.META.get('HTTP_REFERER', 'core:accueil'))
 
+# Pour supprimer un parfum du panier
 @login_required
 def supprimer_du_panier(request, pk):
     article = get_object_or_404(ArticlePanier, pk=pk, panier__utilisateur=request.user)
@@ -79,6 +93,7 @@ def supprimer_du_panier(request, pk):
     messages.success(request, "L'article a été supprimé du panier.")
     return redirect('core:voir_panier')
 
+# Pour modifier la quantité d'un parfum dans le panier
 @login_required
 def modifier_quantite(request, pk):
     if request.method == 'POST':
@@ -113,7 +128,6 @@ def rechercher_parfums(request):
         'query': query,
     }
     return render(request, 'core/recherche.html', context)
-
 
 # Pour gérer les commandes
 @login_required
@@ -211,6 +225,7 @@ def passer_commande(request):
     }
     return render(request, 'core/passer_commande.html', context)
 
+# Pour afficher les détails d'une commande
 @login_required
 def detail_commande(request, numero_commande):
     commande = get_object_or_404(Commande, numero_commande=numero_commande, utilisateur=request.user)
@@ -219,6 +234,7 @@ def detail_commande(request, numero_commande):
     }
     return render(request, 'core/detail_commande.html', context)
 
+# Pour afficher l'historique des commandes
 class HistoriqueCommandes(ListView):
     model = Commande
     template_name = 'core/historique_commandes.html'
@@ -226,3 +242,120 @@ class HistoriqueCommandes(ListView):
     
     def get_queryset(self):
         return Commande.objects.filter(utilisateur=self.request.user).order_by('-date_commande')
+
+# Pour afficher le profil utilisateur et le tableau de bord
+@login_required
+def account_dashboard(request):
+    # Historique des commandes
+    commandes = request.user.commande_set.order_by('-date_commande')[:5]
+    
+    # Dernières connexions
+    connexions = UserLoginHistory.objects.filter(user=request.user).order_by('-timestamp')[:5]
+    
+    context = {
+        'commandes': commandes,
+        'connexions': connexions,
+    }
+    return render(request, 'core/auth/account_dashboard.html', context)
+
+# Pour mettre à jour le profil utilisateur
+@login_required
+def profil(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profil)
+        
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, 'Votre profil a été mis à jour !')
+            return redirect('core:profile')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profil)
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form
+    }
+    return render(request, 'core/auth/profil.html', context)
+
+# Pour l'enregistrement d'un nouvel utilisateur
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Votre compte a été créé avec succès !')
+            return redirect('core:home')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'core/auth/register.html', {'form': form})
+
+# Pour afficher et mettre à jour le profil utilisateur
+@login_required
+def profil(request):
+    if request.method == 'POST':
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profil)
+        
+        if u_form.is_valid() and p_form.is_valid():
+            u_form.save()
+            p_form.save()
+            messages.success(request, 'Votre profil a été mis à jour !')
+            return redirect('core:profil')
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=request.user.profil)
+
+    context = {
+        'u_form': u_form,
+        'p_form': p_form
+    }
+    return render(request, 'core/auth/profil.html', context)
+
+# Pour la vue de connexion personnalisée
+def custom_login_view(request):
+    if request.user.is_authenticated:
+        return redirect('core:accueil')
+    
+    # Ignorer complètement le paramètre next si c'est pour __reload__
+    next_url = request.GET.get('next', '')
+    if '__reload__' in next_url:
+        next_url = ''
+    
+    # Utiliser la vue de connexion standard de Django
+    login_view = LoginView.as_view(
+        template_name='core/auth/login.html',
+        redirect_authenticated_user=True,
+        success_url=reverse_lazy('core:accueil')
+    )
+    
+    return login_view(request)
+
+# Pour l'enregistrement d'un nouvel utilisateur
+def register(request):
+    if request.user.is_authenticated:
+        return redirect('core:accueil')
+        
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Compte créé pour {username}!')
+            login(request, user)
+            return redirect('core:accueil')
+    else:
+        form = UserRegisterForm()
+    
+    return render(request, 'core/auth/register.html', {'form': form})
+
+
+def test_account_dasboard(request):
+    return render(request, 'core/auth/test_account_dasboard.html', {'form': None})
+# Custom logout view to redirect to accueil after logout
+def custom_logout(request):
+    logout(request)
+    return redirect('core:accueil')

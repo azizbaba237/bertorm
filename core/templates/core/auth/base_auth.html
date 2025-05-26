@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Luxe Parfums{% endblock %}</title>
+    {% load static tailwind_tags %}
+    {% tailwind_css %}
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+</head>
+<body class="font-sans bg-gray-50">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{% url 'core:accueil' %}" class="text-2xl font-bold text-indigo-600">
+                Berto Rico Milano Parfums
+            </a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="{% url 'core:accueil' %}" class="text-gray-700 hover:text-indigo-600">Accueil</a>
+                <a href="{% url 'core:liste_parfums' %}" class="text-gray-700 hover:text-indigo-600">Nos parfums</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2023 Luxe Parfums. Tous droits réservés.</p>
+        </div>
+    </footer>
+</body>
+</html>

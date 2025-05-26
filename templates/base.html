@@ -6,6 +6,7 @@
     <title>{% block title %}Luxe Parfums{% endblock %}</title>
     {% load static tailwind_tags %} {% tailwind_css %}
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
   <body class="font-sans bg-gray-50">
     <header class="bg-white shadow-sm">
@@ -87,6 +88,68 @@
               </div>
             </form>
           </div>
+          <!-- pour la connexion/déconnexion -->
+          {% if user.is_authenticated %}
+          <div
+            class="relative group"
+            x-data="{ open: false }"
+            @click.outside="open = false"
+          >
+            <button
+              class="flex items-center space-x-2 focus:outline-none"
+              @click="open = !open"
+              @mouseover="open = true"
+            >
+              <img
+                class="h-8 w-8 rounded-full"
+                src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'images/default_avatar.png' %}{% endif %}"
+                alt="Avatar"
+              />
+              <span class="hidden md:inline">{{ user.username }}</span>
+            </button>
+
+            <div
+              class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
+              x-show="open"
+              x-transition:enter="transition ease-out duration-100"
+              x-transition:enter-start="transform opacity-0 scale-95"
+              x-transition:enter-end="transform opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-75"
+              x-transition:leave-start="transform opacity-100 scale-100"
+              x-transition:leave-end="transform opacity-0 scale-95"
+              @mouseleave="open = false"
+            >
+              <a
+                href="{% url 'core:account_dashboard' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >Mon compte</a
+              >
+              <a
+                href="{% url 'core:historique_commandes' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >Mes commandes</a
+              >
+              <a
+                href="{% url 'core:logout' %}"
+                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >Déconnexion</a
+              >
+            </div>
+          </div>
+          {% else %}
+          <div class="flex space-x-4">
+            <a
+              href="{% url 'core:login' %}"
+              class="px-3 py-2 text-sm font-medium"
+              >Connexion</a
+            >
+            <a
+              href="{% url 'core:register' %}"
+              class="px-3 py-2 text-sm font-medium bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              >Inscription</a
+            >
+          </div>
+          {% endif %}
         </div>
       </div>
     </header>
@@ -130,5 +193,37 @@
         </div>
       </div>
     </footer>
+    <!--notifications toast pour les actions utilisateur : -->
+    <div id="toast" class="fixed bottom-4 right-4 hidden">
+      <div class="bg-green-500 text-white px-4 py-2 rounded shadow-lg">
+        <div class="flex items-center">
+          <span id="toast-message"></span>
+          <button
+            onclick="document.getElementById('toast').classList.add('hidden')"
+            class="ml-4"
+          >
+            &times;
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function showToast(message) {
+        const toast = document.getElementById("toast");
+        const toastMessage = document.getElementById("toast-message");
+        toastMessage.textContent = message;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 5000);
+      }
+
+      // Afficher les messages Django comme toasts
+      document.addEventListener("DOMContentLoaded", function () {
+        const messages = document.querySelectorAll(".alert");
+        messages.forEach((message) => {
+          showToast(message.textContent);
+        });
+      });
+    </script>
   </body>
 </html>
