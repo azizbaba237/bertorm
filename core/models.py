@@ -163,6 +163,10 @@ class Commande(models.Model):
 
     def __str__(self):
         return f"Commande #{self.numero_commande}"
+    
+    @property
+    def total_avant_reduction(self):
+        return self.total - self.frais_livraison
 
 class ArticleCommande(models.Model):
     commande = models.ForeignKey(Commande, on_delete=models.CASCADE, related_name='articles')

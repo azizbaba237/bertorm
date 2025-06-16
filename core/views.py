@@ -132,6 +132,10 @@ def rechercher_parfums(request):
 # Pour gérer les commandes
 @login_required
 def passer_commande(request):
+    # Debugging: afficher les données de la requête
+    print(f"Méthode: {request.method}")  # Debug
+    print(f"POST data: {request.POST}")  # Debug
+    
     panier = get_object_or_404(Panier, utilisateur=request.user)
     methodes_livraison = MethodeLivraison.objects.filter(actif=True)
      

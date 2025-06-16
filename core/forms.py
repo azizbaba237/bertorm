@@ -172,7 +172,7 @@ class ProfileUpdateForm(forms.ModelForm):
         model = ProfilUtilisateur
         fields = ['date_naissance', 'telephone', 'adresse', 'ville', 'code_postal', 'pays']
 
-class AdresseLivraisonForm(forms.ModelForm):
+class AdresseLivraisonModelForm(forms.ModelForm):
     class Meta:
         model = AdresseLivraison
         fields = ['nom_complet', 'societe', 'adresse', 'complement', 'ville', 'code_postal', 'pays', 'telephone', 'par_defaut', 'notes']
