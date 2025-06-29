@@ -15,7 +15,7 @@ IS_PRODUCTION = DJANGO_ENV == 'production'
 # Configuration Debug et Hosts selon l'environnement
 if IS_PRODUCTION:
     DEBUG = False
-    ALLOWED_HOSTS = ['Azizbaba237.pythonanywhere.com']
+    ALLOWED_HOSTS = ['']
 else:
     DEBUG = True
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
