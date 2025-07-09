@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
-from .views import custom_login_view
+from .views import custom_login_view, privacy_policy
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LogoutView
 
@@ -37,5 +37,6 @@ urlpatterns = [
     # Test URL
     path('test-account_dasboard/', views.test_account_dasboard, name='test_account_dasboard'),
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='core/auth/password_reset.html'), name='password_reset'),
+    path('privacy/', privacy_policy, name='privacy'),
 ]
     

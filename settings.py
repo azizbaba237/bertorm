@@ -24,6 +24,7 @@ else:
 
 # Applications installées
 INSTALLED_APPS = [
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,12 +42,20 @@ INSTALLED_APPS = [
     
     'crispy_forms',  # pour les formulaires stylisés
     'crispy_tailwind',  # pour Tailwind
+    
+    # pour les connexions via mail et facebook 
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+
 ]
 
 # Configuration d'authentification
-LOGIN_URL = 'core:login'
-LOGIN_REDIRECT_URL = 'core:accueil'
-LOGOUT_REDIRECT_URL = 'core:accueil'
+# LOGIN_URL = 'core:login'
+# LOGIN_REDIRECT_URL = 'core:accueil'
+# LOGOUT_REDIRECT_URL = 'core:accueil'
 
 # App Tailwind
 TAILWIND_APP_NAME = 'theme'
@@ -57,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -161,11 +171,40 @@ CRISPY_TEMPLATE_PACK = "tailwind"
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
+# Configuration Allauth et Configuration d'authentification
+SITE_ID = 1
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'core.User'
 
 # Configuration de Django Debug Toolbar
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': lambda request: not request.path.startswith('/__reload__/'),
+}
+
+# Configuration de la connexion via Facebook
+SOCIALACCOUNT_PROVIDERS = {
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SDK_URL': '//connect.facebook.net/fr_FR/sdk.js',
+        'SCOPE': ['email'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'INIT_PARAMS': {'cookie': True},
+        'FIELDS': [
+            'id', 'email', 'name', 'first_name', 'last_name',
+            'verified', 'locale', 'timezone', 'link', 'gender', 'updated_time'
+        ],
+        'EXCHANGE_TOKEN': True,
+        'LOCALE_FUNC': lambda request: 'fr_FR',
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v19.0',  # ou celle indiquée par Meta
+    }
 }

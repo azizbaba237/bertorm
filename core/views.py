@@ -363,3 +363,8 @@ def test_account_dasboard(request):
 def custom_logout(request):
     logout(request)
     return redirect('core:accueil')
+
+
+# Politique de confidentialite 
+def privacy_policy(request):
+    return render(request, 'core/privacy.html')
