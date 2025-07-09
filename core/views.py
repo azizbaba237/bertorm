@@ -368,3 +368,7 @@ def custom_logout(request):
 # Politique de confidentialite 
 def privacy_policy(request):
     return render(request, 'core/privacy.html')
+
+#pour supprimer les données
+def delete_data(request):
+    return render(request, 'core/delete_data.html')

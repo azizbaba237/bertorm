@@ -38,5 +38,6 @@ urlpatterns = [
     path('test-account_dasboard/', views.test_account_dasboard, name='test_account_dasboard'),
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='core/auth/password_reset.html'), name='password_reset'),
     path('privacy/', privacy_policy, name='privacy'),
+    path('delete-data/', views.delete_data, name='delete-data'),
 ]
     
