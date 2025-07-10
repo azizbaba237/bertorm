@@ -16,7 +16,7 @@
                      alt="{{ user.username }}">
                 {% else %}
                 <img class="h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20 rounded-full object-cover" 
-                     src="{% static 'images/default_avatar.png' %}"
+                     src="{{ MEDIA_URL }}avatars/default_avatar.png"
                      alt="{{ user.username }}">
                 {% endif %}
                 <div class="text-center sm:text-left md:text-center">
@@ -87,7 +87,7 @@
                                          alt="Photo de profil actuelle">
                                     {% else %}
                                     <img class="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover" 
-                                        src="{% static 'images/default_avatar.png' %}" 
+                                        src="{{ MEDIA_URL }}avatars/default_avatar.png" 
                                         alt="Avatar par défaut">
                                     {% endif %}
                                 </div>
