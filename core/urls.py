@@ -10,6 +10,8 @@ app_name = 'core'
 urlpatterns = [
     path('', views.accueil, name='accueil'),
     path('parfums/', views.liste_parfums, name='liste_parfums'),
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
     path('parfum/<int:pk>/', views.detail_parfum, name='detail_parfum'),
     path('panier/', views.voir_panier, name='voir_panier'),
     path('panier/ajouter/<int:pk>/', views.ajouter_au_panier, name='ajouter_au_panier'),
@@ -39,5 +41,6 @@ urlpatterns = [
     path('password-reset/', auth_views.PasswordResetView.as_view(template_name='core/auth/password_reset.html'), name='password_reset'),
     path('privacy/', privacy_policy, name='privacy'),
     path('delete-data/', views.delete_data, name='delete-data'),
+    
 ]
     

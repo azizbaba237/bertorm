@@ -10,5 +10,4 @@ urlpatterns = [
     path('__reload__/', include('django_browser_reload.urls')),
     path('', include('core.urls')),
      path('accounts/', include('allauth.urls')),
-    #path('compte/', include('django.contrib.auth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

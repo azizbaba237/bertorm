@@ -1,16 +1,18 @@
-{% extends "core/auth/base_auth.html" %}
-{% load crispy_forms_tags %}
-{% load socialaccount %}
-
-{% block content %}
-<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+{% extends "core/auth/base_auth.html" %} {% load crispy_forms_tags %} {% load
+socialaccount %} {% block content %}
+<div
+  class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8"
+>
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
     <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
       Créez un nouveau compte
     </h2>
     <p class="mt-2 text-center text-sm text-gray-600">
       Déjà membre ?
-      <a href="{% url 'core:login' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+      <a
+        href="{% url 'core:login' %}"
+        class="font-medium text-indigo-600 hover:text-indigo-500"
+      >
         Connectez-vous
       </a>
     </p>
@@ -18,30 +20,105 @@
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-      <!-- {% include 'core/auth/components/messages.html' %} -->
-      
+      {% include 'core/auth/components/messages.html' %}
+
       <form class="space-y-6" method="POST">
-        {% csrf_token %}
-        
-        {{ form|crispy }}
+        {% csrf_token %} {{ form|crispy }}
 
         <div class="flex items-start">
           <div class="flex items-center h-5">
-            <input id="terms" name="terms" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" required>
+            <input
+              id="terms"
+              name="terms"
+              type="checkbox"
+              class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+              required
+            />
           </div>
           <div class="ml-3 text-sm">
             <label for="terms" class="font-medium text-gray-700">
-              J'accepte les <a href="#" class="text-indigo-600 hover:text-indigo-500">conditions générales</a>
+              J'accepte les
+              <a href="#" class="text-indigo-600 hover:text-indigo-500"
+                >conditions générales</a
+              >
             </label>
           </div>
         </div>
 
         <div>
-          <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <button
+            type="submit"
+            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
             S'inscrire
           </button>
         </div>
       </form>
+
+      <div class="mt-6">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">
+              Ou inscrivez-vous avec
+            </span>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          <a
+            href="#"
+            class="w-full inline-flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <svg
+              class="w-5 h-5 mr-3"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                fill="#4285F4"
+                d="M23.64 12.204c0-.796-.07-1.562-.2-2.296H12v4.352h6.36a5.434 5.434 0 01-2.352 3.57v2.964h3.8c2.224-2.04 3.5-5.07 3.5-8.59z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 24c3.24 0 5.964-1.068 7.952-2.896l-3.8-2.964c-1.06.71-2.42 1.132-4.152 1.132-3.19 0-5.898-2.152-6.872-5.05H1.2v3.176A11.995 11.995 0 0012 24z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.128 14.322a7.258 7.258 0 010-4.644V6.502H1.2a11.97 11.97 0 000 10.996l3.928-3.176z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 4.78c1.752 0 3.32.6 4.556 1.77l3.416-3.416C17.956 1.248 15.24 0 12 0 7.788 0 3.94 2.56 1.2 6.502l3.928 3.176C6.1 6.926 8.81 4.78 12 4.78z"
+              />
+            </svg>
+            Continuer avec Google
+          </a>
+
+          <a
+            href="{% provider_login_url 'facebook' process='signup' %}"
+            class="w-full inline-flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            <svg
+              class="w-5 h-5 mr-3"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M20 10c0-5.523-4.477-10-10-10S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            Continuer avec Facebook
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

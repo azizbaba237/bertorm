@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}Luxe Parfums{% endblock %}</title>
+    <title>{% block title %}Berto Ricco Milano Parfums{% endblock %}</title>
     <!-- {% load static tailwind_tags %} {% tailwind_css %} -->
     {% load static %}
     <!-- k<link rel="stylesheet" href="{% static 'css/custom.css' %}" /> -->
@@ -11,14 +11,14 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
   <body class="font-sans bg-gray-50">
-    <header class="bg-white shadow-sm">
+    <header class="bg-white shadow-md sticky top-0 z-50">
       <div
         class="container mx-auto px-4 py-4 flex justify-between items-center"
       >
         <a
           href="{% url 'core:accueil' %}" 
           class="text-2xl font-bold text-indigo-600"
-          >Berto Rico Milano Parfums</a
+          >Berto Ricco Milano Parfums</a
         >
         <nav class="hidden md:flex space-x-8">
           <a
@@ -30,6 +30,16 @@
             href="{% url 'core:liste_parfums' %}"
             class="text-gray-700 hover:text-indigo-600"
             >Nos Parfums</a
+          >
+          <a
+            href="{% url 'core:about' %}"
+            class="text-gray-700 hover:text-indigo-600"
+            >About</a
+          >
+          <a
+            href="{% url 'core:contact' %}"
+            class="text-gray-700 hover:text-indigo-600"
+            >Contact</a
           >
         </nav>
         <div class="flex items-center space-x-4">

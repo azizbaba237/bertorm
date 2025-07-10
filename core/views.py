@@ -372,3 +372,9 @@ def privacy_policy(request):
 #pour supprimer les données
 def delete_data(request):
     return render(request, 'core/delete_data.html')
+
+def about(request):
+    return render(request, 'core/about.html')
+
+def contact(request):
+    return render(request, 'core/contact.html')

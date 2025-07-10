@@ -1,0 +1,34 @@
+<!-- templates/core/contact.html -->
+{% extends "base.html" %}
+{% block content %}
+<section class="bg-gray-50 py-16 px-4 sm:px-8 lg:px-32">
+  <div class="max-w-4xl mx-auto">
+    <h2 class="text-4xl font-bold text-center text-gray-800 mb-6">Contactez-nous</h2>
+    <p class="text-center text-gray-600 mb-10">
+      Une question ? Besoin d’un conseil parfum ? Notre équipe vous répond dans les plus brefs délais.
+    </p>
+    <form method="post" action="{% url 'core:contact' %}" class="space-y-6 bg-white p-8 shadow-lg rounded-lg">
+      {% csrf_token %}
+      <div>
+        <label for="name" class="block text-gray-700 font-medium mb-2">Nom</label>
+        <input type="text" name="name" id="name" required class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-pink-500">
+      </div>
+      <div>
+        <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
+        <input type="email" name="email" id="email" required class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-pink-500">
+      </div>
+      <div>
+        <label for="message" class="block text-gray-700 font-medium mb-2">Message</label>
+        <textarea name="message" id="message" rows="5" required class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-pink-500"></textarea>
+      </div>
+      <button type="submit" class="bg-pink-600 text-white px-6 py-3 rounded-lg hover:bg-pink-700 transition duration-300">Envoyer</button>
+    </form>
+
+    <div class="mt-12 text-center text-gray-700">
+      <p><strong>Boutique physique :</strong> Akwa, Douala, Cameroun</p>
+      <p><strong>Email :</strong> contact@bertormparfums.com</p>
+      <p><strong>Téléphone :</strong> +237 6 90 12 34 56</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
